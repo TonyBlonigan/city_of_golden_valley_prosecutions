@@ -28,7 +28,21 @@ is posted on their website.
 
 ## Low Level Driving Offenses
 
-#### Chestnut Cambronne Prosecution Dispositions by Race (01/2020 - 06/2021)
+One of the data sets provided by Chestnut Cabronne is a summary of low level driving offences, which include prosecutions for the following offences:
+  - No driver’s license
+  - No proof of insurance
+  - No insurance
+  - Driving after suspension, revocation, or cancellation
+  - Expired tabs
+  - Expired driver’s license
+  - Window tint
+  - Rear view mirror obstruction
+  - Unsafe equipment
+  
+### Chestnut Cambronne Prosecution Dispositions by Race (01/2020 - 06/2021)
+
+CC's full data set for low level driving offenses
+
 ```{r low_level_driving_offenses_setup, echo=FALSE}
 # generate data set
 low_level_driving_offenses_by_race = data.frame(row.names=c('White', 'Black','Multiracial', 'Asian',
