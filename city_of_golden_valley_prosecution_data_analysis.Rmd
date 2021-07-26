@@ -1,0 +1,246 @@
+---
+title: "City of Golden Valley Prosecution Data Analysis"
+author: "Tony Blonigan"
+date: "7/25/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(corrplot)
+library(ggplot2)
+```
+
+As a part of an equity review, the city of Golden Valley requested the law firm contracted 
+to prosecute several categories of offenses on their behalf, Chestnut Cambronne (CC), provide:
+
+1. A written report on its prosecutorial approach, and
+2. Several data sets relating prosecution outcomes to race and gender, covering 
+the 17 months between January 2020 and June 2021
+
+A [summary document](https://www.goldenvalleymn.gov/council/pdf/Manager-Agendas/2021/council-manager-agenda-july-13-21.pdf)
+is posted on their website.
+
+## Low Level Driving Offenses
+
+#### Chestnut Cambronne Prosecution Dispositions by Race (01/2020 - 06/2021)
+```{r low_level_driving_offenses_setup, echo=FALSE}
+# generate data set
+low_level_driving_offenses_by_race = data.frame(row.names=c('White', 'Black','Multiracial', 'Asian',
+                                                         'Indian Alaskan Native', 'Some Other Race',
+                                                         'Hispanic', 'Unavailable'),
+                                                Convicted=c(64,73,2,3,2,3,25,196),
+                                                Interim.Disposition=c(1,3,1,1,0,1,3,1),
+                                                Dismissed=c(29,43,0,1,1,5,9,29),
+                                                No.Disposition=c(73,276,17,7,7,7,32,190))
+
+
+print(low_level_driving_offenses_by_race)
+```
+
+
+#### Count of Prosecutions by Race
+```{r count_of_prosecutions_by_race, echo=FALSE}
+rowSums(low_level_driving_offenses_by_race)
+```
+
+
+#### Percent of Prosecutions by Race
+```{r percent_of_prosecutions_by_race, echo=FALSE}
+round(rowSums(low_level_driving_offenses_by_race) / sum(low_level_driving_offenses_by_race), 2) * 100
+```
+
+### Data Set Characteristics
+
+Description from Golden Valley summary document:
+> "In total, there were 1105 cases prosecuted by the Golden Valley City Attorney that resulted in a conviction on charges of No driver’s license; no proof of insurance; no insurance; driving after suspension, revocation, or cancellation; expired tabs; expired driver’s license; window tint; rear view mirror obstruction; and unsafe equipment between January 2020 and June 2021.
+
+> "Of these 1105 cases, 36% of the individuals identify as Black/African American, 15% identify as White, 6% identify as Hispanic/Latino, 2% identify as Multiracial, 1% identify as Native American, 1% identify as some other race, 1% identify as Asian, while we do not have race data for 38% (many of these cases are payables and will not have a court appearance, which is where race data is collected by the courts)."
+
+### Analysis
+
+Comparing the racial composition of the low level driving offenses to the [American Communities Survey demographic data](https://stats.metc.state.mn.us/profile/detail.aspx?c=02394924) (ACS) for the Golden Valley, it is immediately apparent that the black population prosecuted at a higher rate than the white population. The racial/ethnic groups represented in the CC prosecution data set are so different from the city's population that statistical analysis is hardly required to detect the relationship between race/ethnicity and prosecution for low-level driving offences. That said, below is a statistical analysis supporting this conclusion.
+
+There are several limitations to the available data, such as:
+
+1. Racial and Ethnic categories are inconsistent between ACS and CC data sets
+    - For example the ACS data set explicitly isolates latino/a/x (even from multiracial), where the CC categories are more ambiguous. For example a latino person from Brazil might consider themselves 'Hispanic or Latinx' given the ACS categories, but 'Black', 'Multiracial', or 'Some Other Race' given the CC options.
+2. 37% of the population in the CC data set is 'Unavailable.' The quote above, from the report on the Golden Valley website, indicates that these are people who did not have a court appearance. We have no reason to assume not having a court appearance is not associated with race, so we can't just assume those people shared the same racial/ethnic distribution as the other defendants. Further, there is no similar category in the ACS data set, as the responses do not depend on a court case and there is no category for people who didn't respond to the survey.
+3. The CC data set is not a random sample of the population, while the ACS data is a random sample
+4. Where the CC data set is taken 'between, January 2020 through and June 2021,` it is not clear whether this includes January and/or June, the ACS data is from 2015-2020 surveys. So there is some difference in the populations to be expected. Maybe someone in the city government would be able to advise whether it is a reasonable assumption that the racial/ethnic distribution of Golden Valley has not changed significantly over that period.
+5. As indicated in the report, many of the people prosecuted are from cities other than Golden Valley. This point will be addressed separately, below.
+6. It is also worth noting that the prosecutions data occurs during the COVID pandemic when driving patterns were likely different than the non COVID period.
+
+Given these limitations, it is still possible to use statistical tools to help us quantify our certainty that prosecution for low level driving offences is associated with race/ethnicity.
+
+To compare the racial/ethnic makeup of the city to the racial/ethnic makeup of the population being prosecuted by CC, we must map the ACS races to the CC races. Imprecision in language used to describe races and ethnicity makes this is an imperfect process, but here is the mapping I used:
+
+#### Conversion mapping from ACS Race/Ethnicities to CC Races
+```{r acs_race_ethnicity_mapping, echo=FALSE}
+
+# generate data set
+acs.race.and.ethnicity = data.frame(
+  row.names = c(
+    'White alone, non-Latinx',
+    'Black alone, non-Latinx',
+    'More than one race, non-Latinx',
+    'Asian alone, non-Latinx',
+    'American Indian alone, non-Latinx',
+    'Some Other Race alone, non-Latinx',
+    'Hispanic or Latinx'
+  ),
+  Proportion = c(.8526, .0427, 0.0416, .03, .0069, .0009, .0255)
+)
+
+# from ACS
+gv_population = 22715
+
+acs.race.and.ethnicity$n = round(acs.race.and.ethnicity$Proportion * gv_population)
+
+acs_race_ethnicity_to_cc_race = function(x) {
+  if (x == 'American Indian alone, non-Latinx') {
+    'Indian Alaskan Native'
+  }
+  else if (x == 'Asian alone, non-Latinx') {
+    'Asian'
+  }
+  else if (x == 'Black alone, non-Latinx') {
+    'Black'
+  }
+  else if (x == 'Hispanic or Latinx') {
+    'Hispanic'
+  }
+  else if (x == 'More than one race, non-Latinx') {
+    'Multiracial'
+  }
+  else if (x == 'Some Other Race alone, non-Latinx') {
+    'Some Other Race'
+  }
+  else if (x == 'White alone, non-Latinx') {
+    'White'
+  }
+}
+
+converted.names = c()
+
+i = 1
+
+for (n in row.names(acs.race.and.ethnicity)){
+  converted_name <- acs_race_ethnicity_to_cc_race(x = n)
+  print(paste(n, '->', converted_name))
+  converted.names[i] = converted_name
+  i = i + 1
+}
+
+row.names(acs.race.and.ethnicity) = converted.names
+
+acs_and_lld = merge(rowSums(low_level_driving_offenses_by_race), acs.race.and.ethnicity, by='row.names', all=TRUE)
+
+row.names(acs_and_lld) = acs_and_lld$Row.names
+
+acs_and_lld = acs_and_lld[,c('x', 'n')]
+
+colnames(acs_and_lld) = c('CC.Prosecutions', 'ACS.Population')
+
+```
+
+#### Data Set
+This is the data being analysed to see whether prosecution, which in this case translates to being pulled over and charged with a low-level driving offence, is associated with race/ethnicity.
+```{r acs_cc_comparison_table, echo=FALSE}
+acs_and_lld
+```
+
+For the reasons listed above, we will ignore the 'Unavailable' category.
+
+#### Chi-Square Test of Independence
+
+The chi-square test of independence can be used to asses whether prosecution is associated with race/ethnicity. This test compares the actual counts of prosecutions by race to what we would expect them to be if people of all races/ethnicities were prosecuted at the same rate. The more different those two sets of counts are, the more likely prosecution is associated with race/ethnicity.
+
+This test returns a p-value, which can roughly be interpreted as the probability of seeing Golden Valley's prosecutions counts if prosecution were independent of race/ethnicity.
+
+The test results below return an extremely low p-value, indicating that there is strong statistical evidence of an association between race and prosecution for low level driving offences.
+
+```{r low_level_driving_offenses_prosecution_chi_square, echo=FALSE, warning=FALSE}
+chisq = chisq.test(acs_and_lld[complete.cases(acs_and_lld),])
+
+chisq
+```
+
+#### Pearson Residual Plot
+Below, is a plot that illustrates the difference between the racial/ethnic distribution of prosecutions and the racial/ethnic distribution of Golden Valley, quantified as Pearson Residuals. The size of the dot corresponds to the size of the difference between the prosecution and Golden Valley populations. The color of the dots indicate the direction of the difference (blue means over represented, red means under represented).
+
+The largest point is in the 'Black', 'CC.Prosecutions' cell. The dark blue color indicates that black people are prosecuted at a much higher rate than would be expected if prosecutions were independent of race. 'Hispanic', and 'Some Other Race' show a similar, but less pronounced, pattern of abnormally high prosecution rates.
+
+The 'White', 'CC.Prosecutions' cell also has a large dot, indicating the expected count of prosecutions is much different than the actual value. But in this case the red color of the dot indicates that their value is lower than expected.
+
+The other notable dot is in the 'Black', 'ACS.Population' cell. Since the racial/ethnic distributions in both the CC and ACS data set are considered when calculating the counts of prosecutions we would expect to see if prosecution was independent of race/ethnicity, it is also possible for there to be a large difference between the expected population of the ACS.Population. In this case, given the huge over-representation of Black people in the prosecution data set, the ACS population of Black people is much lower than what we would expect it to be.
+
+```{r low_level_driving_offenses_residual_plot, echo=FALSE}
+# print('Observed Values')
+# 
+# round(chisq$observed,2)
+# 
+# print('Chi-Square Expected Values (assuming race independent prosecution)')
+# round(chisq$expected,2)
+
+# Residuals
+p = chisq$residuals
+row.names(p) = row.names(acs_and_lld)[complete.cases(acs_and_lld)]
+corrplot(p, is.cor = FALSE)
+
+# round(p, 2)
+# 
+# # Contibution in percentage (%)
+# print('Contribution to Chi-Square Statistic')
+# contrib <- 100*chisq$residuals^2/chisq$statistic
+# corrplot(contrib, is.cor = FALSE)
+# round(contrib, 3)
+
+```
+```{r ggplot_residuals, echo=FALSE}
+
+# data.frame(chisq$residuals)
+
+# ggplot(chisq$residuals, aes)
+
+```
+
+
+```{r low_level_driving_offenses_by_race_chi_square, echo=FALSE}
+# 
+# n_columns <- dim(low_level_driving_offenses_by_race)[2]
+# 
+# ft = fisher.test(low_level_driving_offenses_by_race, simulate.p.value = TRUE, B = 1e6)
+# 
+# ft
+# 
+# chisq = chisq.test(low_level_driving_offenses_by_race)
+# 
+# chisq
+# 
+# print('Observed Values')
+# 
+# round(chisq$expected,2)
+# 
+# print('Chi-Square Expected Values (assuming race independent prosecution)')
+# round(chisq$expected,2)
+# 
+# print('pearson residuals (difference between observed and expected values)')
+# # Residuals
+# corrplot(chisq$residuals, is.cor = FALSE)
+# 
+# round(chisq$residuals, 2)
+# 
+# # Contibution in percentage (%)
+# print('Contribution to Chi-Square Statistic')
+# contrib <- 100*chisq$residuals^2/chisq$statistic
+# corrplot(contrib, is.cor = FALSE)
+# round(contrib, 3)
+
+
+# ft = fisher.test(acs_and_lld[,c('x', 'n')])
+
+# ft
+
+```
+
