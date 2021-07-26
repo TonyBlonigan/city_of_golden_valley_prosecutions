@@ -58,6 +58,7 @@ round(rowSums(low_level_driving_offenses_by_race) / sum(low_level_driving_offens
 ### Data Set Characteristics
 
 Description from Golden Valley summary document:
+
 > "In total, there were 1105 cases prosecuted by the Golden Valley City Attorney that resulted in a conviction on charges of No driver’s license; no proof of insurance; no insurance; driving after suspension, revocation, or cancellation; expired tabs; expired driver’s license; window tint; rear view mirror obstruction; and unsafe equipment between January 2020 and June 2021.
 
 > "Of these 1105 cases, 36% of the individuals identify as Black/African American, 15% identify as White, 6% identify as Hispanic/Latino, 2% identify as Multiracial, 1% identify as Native American, 1% identify as some other race, 1% identify as Asian, while we do not have race data for 38% (many of these cases are payables and will not have a court appearance, which is where race data is collected by the courts)."
@@ -78,7 +79,7 @@ There are several limitations to the available data, such as:
 
 Given these limitations, it is still possible to use statistical tools to help us quantify our certainty that prosecution for low level driving offences is associated with race/ethnicity.
 
-To compare the racial/ethnic makeup of the city to the racial/ethnic makeup of the population being prosecuted by CC, we must map the ACS races to the CC races. Imprecision in language used to describe races and ethnicity makes this is an imperfect process, but here is the mapping I used:
+To compare the racial/ethnic makeup of the city to the racial/ethnic makeup of the population being prosecuted by CC, we must map the ACS races to the CC races. Imprecision in language used to describe race and ethnicity makes this is an imperfect process, but here is the mapping I used:
 
 #### Conversion mapping from ACS Race/Ethnicities to CC Races
 ```{r acs_race_ethnicity_mapping, echo=FALSE}
