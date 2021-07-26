@@ -85,7 +85,7 @@ Comparing the racial composition of the low level driving offenses to the [Ameri
 There are several limitations to the available data, such as:
 
 1. Racial and Ethnic categories are inconsistent between ACS and CC data sets
-    - For example the ACS data set explicitly isolates Latino/a/x (even from multiracial), where the CC categories are more ambiguous. For example a Latino person from Brazil might consider themselves 'Hispanic or Latinx' given the ACS categories, but 'Black', 'Multiracial', or 'Some Other Race' given the CC options.
+    - For example the ACS data set explicitly isolates Latino/a/x (even from multiracial), where the CC categories are more ambiguous. For example a Latino person from Brazil might consider themselves 'Hispanic or Latinx' given the ACS categories, but 'Black', 'Multiracial', or 'Some Other Race' given the CC options, since they have no Latino/a/x options.
 2. 37% of the population in the CC data set is 'Unavailable.' The quote above, from the report on the Golden Valley website, indicates that these are people who did not have a court appearance. We have no reason to assume not having a court appearance is not associated with race, so we can't just assume those people shared the same racial/ethnic distribution as the other defendants. Further, there is no similar category in the ACS data set, as the responses do not depend on a court case and there is no category for people who didn't respond to the survey.
 3. The CC data set is not a random sample of the population, while the ACS data is a random sample
 4. Where the CC data set is taken 'between, January 2020 through and June 2021,` it is not clear whether this includes January and/or June, the ACS data is from 2015-2020 surveys. So there is some difference in the populations to be expected. Maybe someone in the city government would be able to advise whether it is a reasonable assumption that the racial/ethnic distribution of Golden Valley has not changed significantly over that period.
@@ -94,7 +94,7 @@ There are several limitations to the available data, such as:
 
 While keeping these limitations in mind, it is still possible to use statistical tools to help us quantify our certainty that prosecution for low level driving offences is associated with race/ethnicity.
 
-#### Conversion mapping from ACS Race/Ethnicities to CC Races
+#### Conversion from ACS Race/Ethnicities to CC Race/Ethnicities
 To compare the racial/ethnic makeup of the city to the racial/ethnic makeup of the population being prosecuted by CC, we must map the ACS races to the CC races. Imprecision in language used to describe race and ethnicity makes this is an imperfect process, but here is the mapping I used:
 
 ```{r acs_race_ethnicity_mapping, echo=FALSE}

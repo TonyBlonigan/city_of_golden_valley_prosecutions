@@ -239,7 +239,7 @@ pre code {
 <ol style="list-style-type: decimal">
 <li>Racial and Ethnic categories are inconsistent between ACS and CC data sets
 <ul>
-<li>For example the ACS data set explicitly isolates Latino/a/x (even from multiracial), where the CC categories are more ambiguous. For example a Latino person from Brazil might consider themselves ‘Hispanic or Latinx’ given the ACS categories, but ‘Black’, ‘Multiracial’, or ‘Some Other Race’ given the CC options.</li>
+<li>For example the ACS data set explicitly isolates Latino/a/x (even from multiracial), where the CC categories are more ambiguous. For example a Latino person from Brazil might consider themselves ‘Hispanic or Latinx’ given the ACS categories, but ‘Black’, ‘Multiracial’, or ‘Some Other Race’ given the CC options, since they have no Latino/a/x options.</li>
 </ul></li>
 <li>37% of the population in the CC data set is ‘Unavailable.’ The quote above, from the report on the Golden Valley website, indicates that these are people who did not have a court appearance. We have no reason to assume not having a court appearance is not associated with race, so we can’t just assume those people shared the same racial/ethnic distribution as the other defendants. Further, there is no similar category in the ACS data set, as the responses do not depend on a court case and there is no category for people who didn’t respond to the survey.</li>
 <li>The CC data set is not a random sample of the population, while the ACS data is a random sample</li>
@@ -248,8 +248,8 @@ pre code {
 <li>It is also worth noting that the prosecutions data occurs during the COVID pandemic when driving patterns were likely different than the non COVID period.</li>
 </ol>
 <p>While keeping these limitations in mind, it is still possible to use statistical tools to help us quantify our certainty that prosecution for low level driving offences is associated with race/ethnicity.</p>
-<div id="conversion-mapping-from-acs-raceethnicities-to-cc-races" class="section level4">
-<h4>Conversion mapping from ACS Race/Ethnicities to CC Races</h4>
+<div id="conversion-from-acs-raceethnicities-to-cc-raceethnicities" class="section level4">
+<h4>Conversion from ACS Race/Ethnicities to CC Race/Ethnicities</h4>
 <p>To compare the racial/ethnic makeup of the city to the racial/ethnic makeup of the population being prosecuted by CC, we must map the ACS races to the CC races. Imprecision in language used to describe race and ethnicity makes this is an imperfect process, but here is the mapping I used:</p>
 <pre><code>## [1] &quot;White alone, non-Latinx -&gt; White&quot;
 ## [1] &quot;Black alone, non-Latinx -&gt; Black&quot;
