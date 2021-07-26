@@ -57,7 +57,7 @@ round(rowSums(low_level_driving_offenses_by_race) / sum(low_level_driving_offens
 
 ### Data Set Characteristics
 
-Description from Golden Valley summary document:
+Description from Chestnut Cambronne report:
 
 > "In total, there were 1105 cases prosecuted by the Golden Valley City Attorney that resulted in a conviction on charges of No driver’s license; no proof of insurance; no insurance; driving after suspension, revocation, or cancellation; expired tabs; expired driver’s license; window tint; rear view mirror obstruction; and unsafe equipment between January 2020 and June 2021.
 
@@ -65,7 +65,7 @@ Description from Golden Valley summary document:
 
 ### Analysis
 
-Comparing the racial composition of the low level driving offenses to the [American Communities Survey demographic data](https://stats.metc.state.mn.us/profile/detail.aspx?c=02394924) (ACS) for the Golden Valley, it is immediately apparent that the black population prosecuted at a higher rate than the white population. The racial/ethnic groups represented in the CC prosecution data set are so different from the city's population that statistical analysis is hardly required to detect the relationship between race/ethnicity and prosecution for low-level driving offences. That said, below is a statistical analysis supporting this conclusion.
+Comparing the racial composition of the low level driving offenses to the [American Communities Survey demographic data](https://stats.metc.state.mn.us/profile/detail.aspx?c=02394924) (ACS) for the Golden Valley, it is immediately apparent that the black population is prosecuted at a higher rate than the white population. The racial/ethnic groups represented in the CC prosecution data set are so different from the city's population that statistical analysis is hardly required to detect the relationship between race/ethnicity and prosecution for low-level driving offences. That said, below is a statistical analysis supporting this conclusion.
 
 There are several limitations to the available data, such as:
 
@@ -77,11 +77,11 @@ There are several limitations to the available data, such as:
 5. As indicated in the report, many of the people prosecuted are from cities other than Golden Valley. This point will be addressed separately, below.
 6. It is also worth noting that the prosecutions data occurs during the COVID pandemic when driving patterns were likely different than the non COVID period.
 
-Given these limitations, it is still possible to use statistical tools to help us quantify our certainty that prosecution for low level driving offences is associated with race/ethnicity.
-
-To compare the racial/ethnic makeup of the city to the racial/ethnic makeup of the population being prosecuted by CC, we must map the ACS races to the CC races. Imprecision in language used to describe race and ethnicity makes this is an imperfect process, but here is the mapping I used:
+While keeping these limitations in mind, it is still possible to use statistical tools to help us quantify our certainty that prosecution for low level driving offences is associated with race/ethnicity.
 
 #### Conversion mapping from ACS Race/Ethnicities to CC Races
+To compare the racial/ethnic makeup of the city to the racial/ethnic makeup of the population being prosecuted by CC, we must map the ACS races to the CC races. Imprecision in language used to describe race and ethnicity makes this is an imperfect process, but here is the mapping I used:
+
 ```{r acs_race_ethnicity_mapping, echo=FALSE}
 
 # generate data set
