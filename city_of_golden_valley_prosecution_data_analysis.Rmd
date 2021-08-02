@@ -129,10 +129,12 @@ p = pivot_longer(data=p, cols = colnames(low_level_driving_offenses_by_race))
 p <- mutate(p, race = str_wrap(race, width = 6))
 
 ggplot(p, aes(name, value, fill=race)) + 
+  theme_bw() +
   geom_bar(stat='identity') + 
   facet_grid(rows=vars(race)) + 
   coord_flip() +
-  guides(fill = "none")
+  guides(fill = "none") +
+  labs(x = element_blank(), y = 'Pearson Residuals')
 
 ```
 
@@ -188,15 +190,18 @@ p <- mutate(p, race = str_wrap(race, width = 6))
 
 ggplot(p, aes(name, value, fill=race)) + 
   geom_bar(stat='identity') + 
+  theme_bw() +
   facet_grid(rows=vars(race)) + 
   coord_flip() +
-  guides(fill = "none")
+  guides(fill = "none")+
+  labs(x = element_blank(), y = 'Contribution to Evidence that Disposition is Not Independent of Race')
 
 ```
 
 ``` {r include=FALSE}
 ggplot(p, aes(name, value, fill=race,
               group = race, color = race)) +
+  theme_bw() +
   geom_line()
 ```
 
