@@ -66,6 +66,18 @@ low_level_driving_offenses_by_race = data.frame(row.names=c('White', 'Black','Mu
 print(low_level_driving_offenses_by_race)
 ```
 
+
+#### Count of Prosecutions by Race
+```{r count_of_prosecutions_by_race, echo=FALSE}
+rowSums(low_level_driving_offenses_by_race)
+```
+
+
+#### Percent of Prosecutions by Race
+```{r percent_of_prosecutions_by_race, echo=FALSE}
+round(rowSums(low_level_driving_offenses_by_race) / sum(low_level_driving_offenses_by_race), 2) * 100
+```
+
 ### Relationship Between Race and Disposition
 
 To check whether disposition is dependent on race, we can use Fisher's exact test. This test will evaluate how probable it is, given our data set, that disposition is dependent on race. Fisher's exact test is used because it is appropriate for data sets with small counts lower than 5 some categories.
@@ -93,6 +105,7 @@ One way to understand the results is by looking at the Pearson Residuals of a si
 The plot below displays a statistical transformation of these differences to better capture differences between the actual and expected counts. If a bar is lower than zero, it means that category had fewer than the expected amount of cases, if a bar is higher, then it had more.
 
 The salient features in this plot are:
+
 1. The black conviction rate is abnormally low
 2. The black no disposition rate is abnormally high
   - Taken with the low conviction rate this suggests more probation for black people than other races
@@ -214,20 +227,6 @@ round(contrib, 3)
 
 
 ### Relationship Between Race and Prosecution
-
-
-
-#### Count of Prosecutions by Race
-```{r count_of_prosecutions_by_race, echo=FALSE}
-rowSums(low_level_driving_offenses_by_race)
-```
-
-
-#### Percent of Prosecutions by Race
-```{r percent_of_prosecutions_by_race, echo=FALSE}
-round(rowSums(low_level_driving_offenses_by_race) / sum(low_level_driving_offenses_by_race), 2) * 100
-```
-
 
 Comparing the racial composition of the low level driving offenses to the [American Communities Survey demographic data](https://stats.metc.state.mn.us/profile/detail.aspx?c=02394924) (ACS) for the Golden Valley, it is immediately apparent that the black population is prosecuted at a higher rate than the white population. The racial/ethnic groups represented in the CC prosecution data set are so different from the city's population that statistical analysis is hardly required to detect the relationship between race/ethnicity and prosecution for low-level driving offences. That said, below is a statistical analysis supporting this conclusion.
 
