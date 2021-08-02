@@ -16,6 +16,7 @@ library(corrplot)
 library(tidyr)
 library(dplyr)
 library(ggplot2)
+library(stringr)
 ```
 
 As a part of an equity review, the city of Golden Valley requested the law firm contracted 
@@ -108,13 +109,13 @@ The salient features in this plot are:
 
 1. The black conviction rate is abnormally low
 2. The black no disposition rate is abnormally high
-  - Taken with the low conviction rate this suggests more probation for black people than other races
+    - Taken with the low conviction rate this suggests more probation for black people than other races
 3. The unavailable race group has a higher conviction rate than other groups
-  - This group represents people who don’t have a trial, so this isn’t surprising since you usually lose your case if you don’t show up. But losing a case could put someone in any category besides Dismissed.
+    - This group represents people who don’t have a trial, so this isn’t surprising since you usually lose your case if you don’t show up. But losing a case could put someone in any category besides Dismissed.
 4. The Hispanic group has an unusually high rate of interim disposition
 5. The white race group has an unusually high dismissed rate
 
-```{r, echo=FALSE, warning=FALSE}
+```{r, echo=FALSE, warning=FALSE, fig.height=6.25}
 chisq = chisq.test(low_level_driving_offenses_by_race)
 
 p = data.frame(chisq$residuals)
@@ -124,6 +125,8 @@ p$race = row.names(p)
 p = pivot_longer(data=p, cols = colnames(low_level_driving_offenses_by_race))
 
 # p %>% rename(c('Proportion of '='value'))
+
+p <- mutate(p, race = str_wrap(race, width = 6))
 
 ggplot(p, aes(name, value, fill=race)) + 
   geom_bar(stat='identity') + 
@@ -166,7 +169,7 @@ ggplot(p, aes(name, value, fill=race)) +
 
 It is also possible to plot the contribution each count made towards the evidence that disposition is not independent of race. The plot below shows the contribution as a percent of the overall evidence. Not surprisingly, this plot shows most of the contribution coming from the categories enumerated above.
 
-```{r}
+```{r fig.height=6.25}
 chisq = chisq.test(low_level_driving_offenses_by_race)
 
 contrib <- chisq$residuals^2/chisq$statistic
@@ -180,6 +183,8 @@ p$race = row.names(p)
 p = pivot_longer(data=p, cols = colnames(low_level_driving_offenses_by_race))
 
 # p %>% rename(c('Proportion of '='value'))
+
+p <- mutate(p, race = str_wrap(race, width = 6))
 
 ggplot(p, aes(name, value, fill=race)) + 
   geom_bar(stat='identity') + 
