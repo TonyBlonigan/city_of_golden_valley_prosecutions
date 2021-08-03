@@ -4,7 +4,7 @@ knit: (function(input_file, encoding) {
   out_dir <- 'docs';
   rmarkdown::render(input_file,
  encoding=encoding,
- output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
+ output_file=file.path(dirname(input_file), out_dir, 'data_analysis.html'))})
 author: "Tony Blonigan"
 date: "7/25/2021"
 output: html_document
@@ -238,7 +238,7 @@ round(contrib, 3)
 
 ### Relationship Between Race and Prosecution
 
-Comparing the racial composition of the low level driving offenses to the [American Communities Survey demographic data](https://stats.metc.state.mn.us/profile/detail.aspx?c=02394924) (ACS) for the Golden Valley, it is immediately apparent that the black population is prosecuted at a higher rate than the white population. The racial/ethnic groups represented in the CC prosecution data set are so different from the city's population that statistical analysis is hardly required to detect the relationship between race/ethnicity and prosecution for low-level driving offences. That said, below is a statistical analysis supporting this conclusion.
+Comparing the racial composition of the low level driving offenses to the [American Communities Survey](https://stats.metc.state.mn.us/profile/detail.aspx?c=02394924) demographic data (ACS) for the Golden Valley, it is immediately apparent that the black population is prosecuted at a higher rate than the white population. The racial/ethnic groups represented in the CC prosecution data set are so different from the city's population that statistical analysis is hardly required to detect the relationship between race/ethnicity and prosecution for low-level driving offences. That said, below is a statistical analysis supporting this conclusion.
 
 There are several limitations to the available data, such as:
 
