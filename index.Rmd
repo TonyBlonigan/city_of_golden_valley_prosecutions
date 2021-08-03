@@ -1,0 +1,13 @@
+---
+title: "City of Golden Valley Prosecution Data Analysis"
+knit: (function(input_file, encoding) {
+  out_dir <- 'docs';
+  rmarkdown::render(input_file,
+ encoding=encoding,
+ output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
+output: html_document
+author: "Tony Blonigan"
+---
+
+- Summary of Findings (WIP)
+- [Data Analysis](https://tonyblonigan.github.io/city_of_golden_valley_prosecutions/)
