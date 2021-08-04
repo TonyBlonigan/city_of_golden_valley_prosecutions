@@ -1,0 +1,21 @@
+---
+title: "summary"
+author: "Tony Blonigan"
+date: "8/4/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1. CC and ACS populations have very different distributions of race
+  - Black people are disproportionately targeted
+  - Many people from out of Golden Valley (use residency CC data set)
+2. CC Fisher's Exact Test shows disposition is not independent of race
+  -  Black people are put into probation
+3. How does gender play into this? (use gender data set)
+
+4. Same thing with low level non driving
+5. Different thing showing huge set of low level driving prosecutions from state patrol
+  - Are the racial dispositions related to police force?

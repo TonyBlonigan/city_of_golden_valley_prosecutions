@@ -86,9 +86,9 @@ round(rowSums(low_level_driving_offenses_by_race) / sum(low_level_driving_offens
 
 ### Relationship Between Race and Prosecution
 
-Comparing the racial composition of the low level driving offenses to the [American Communities Survey](https://stats.metc.state.mn.us/profile/detail.aspx?c=02394924) demographic data (ACS) for the Golden Valley, it is immediately apparent that the black population is represented at a much higher rate than you would expect, based on Golden Valley's demographics. 
+Comparing the racial composition of the low level driving offenses to the [American Communities Survey](https://stats.metc.state.mn.us/profile/detail.aspx?c=02394924) demographic data (ACS) for the Golden Valley, it is immediately apparent that the black population is represented at a much higher rate than you would expect, based on Golden Valley's demographics, if prosecution were independent of race.
 
-Unfortunately, there are several limitations to the available data preventing us from doing a proper statistical analysis, such as:
+Unfortunately, there are several limitations to the available data preventing a proper statistical analysis of this relationship, such as:
 
 1. Racial and Ethnic categories are inconsistent between ACS and CC data sets
     - For example the ACS data set explicitly isolates Latino/a/x (even from multiracial), where the CC categories are more ambiguous. For example a Latino person from Brazil might consider themselves 'Hispanic or Latinx' given the ACS categories, but 'Black', 'Multiracial', or 'Some Other Race' given the CC options, since they have no Latino/a/x options.
@@ -98,10 +98,10 @@ Unfortunately, there are several limitations to the available data preventing us
 5. As indicated in the report, many of the people prosecuted are from cities other than Golden Valley. This point will be addressed separately, below.
 6. It is also worth noting that the prosecutions data occurs during the COVID pandemic when driving patterns were likely different than the non COVID period.
 
-While keeping these limitations in mind, it is still possible to use statistical tools to help us understand how prosecution for low level driving offences appear to be related to race/ethnicity.
+While keeping these limitations in mind, it is still possible to use statistical tools to help understand how prosecution for low level driving offences appear to be related to race/ethnicity.
 
 #### Conversion from ACS Race/Ethnicities to CC Race/Ethnicities
-To compare the racial/ethnic makeup of the city to the racial/ethnic makeup of the population being prosecuted by CC, we must map the ACS races to the CC races. Imprecision in language used to describe race and ethnicity makes this is an imperfect process, but here is the mapping I used:
+To compare the racial/ethnic makeup of the city to the racial/ethnic makeup of the population being prosecuted by CC, the ACS races must be mapped to the CC races. Imprecision in language used to describe race and ethnicity makes this is an imperfect process, but this is the mapping used for this analysis:
 
 ```{r acs_race_ethnicity_mapping}
 
@@ -211,7 +211,7 @@ ggplot(acs_and_lld_prop, aes(ACS.Population, CC.Prosecutions, color = race)) +
 
 #### Chi-Square Test of Independence
 
-In the absence of the data integrity issues enumerated, above, the chi-squared test of independence could be used to asses whether prosecution is associated with race/ethnicity. While we can't use this as a statistical test to determine whehter there is a relationship between race and prosecution for low level driving offences, we can still use this test to hilight some concerning areas in the data. 
+In the absence of the data integrity issues enumerated, above, the chi-squared test of independence could be used to asses whether prosecution is associated with race/ethnicity. While it can't be uses as a statistical test to determine whether there is a relationship between race and prosecution for low level driving offences, we can still use this test to highlight some concerning areas in the data. 
 
 Much like the chart above, the chi-squared test compares the actual counts of prosecutions by race to what we would expect them to be if people of all races/ethnicities were prosecuted at the same rate. The more different those two sets of counts are, the more likely prosecution is associated with race/ethnicity.
 
@@ -224,7 +224,7 @@ chisq
 ```
 
 #### Pearson Residual Plot
-Below, is a plot that illustrates the difference between the racial/ethnic distribution of prosecutions and the racial/ethnic distribution of Golden Valley, quantified as Pearson Residuals. The lenght of the bars correspond to the size of the difference between the prosecution and Golden Valley populations.
+Below, is a plot that illustrates the difference between the racial/ethnic distribution of prosecutions and the racial/ethnic distribution of Golden Valley, quantified as Pearson Residuals. The length of the bars correspond to the size of the difference between the prosecution and Golden Valley populations.
 
 The longest bar is in the 'Black', 'CC.Prosecutions' cell. The dark blue color indicates that black people are prosecuted at a much higher rate than would be expected if prosecutions were independent of race. 'Hispanic', and 'Some Other Race' show a similar, but less pronounced, pattern of abnormally high prosecution rates.
 
@@ -247,7 +247,22 @@ plot_chi_squared_contribution_percent(acs_and_lld[complete.cases(acs_and_lld),],
 
 ```
 
+#### Residency
 
+The difference in the racial makeup between the Golden Valley and the prosecuted populations outlined above points to the fact that 97% of prosecutions for low level driving offenses are for people living outside of Golden Valley. These people would be people driving through Golden Valley.
+
+``` {r low_level_driving_offenses_by_residency_data}
+# generate data set
+low_level_driving_offenses_by_residency = data.frame(row.names=c('Non-Golden Valley Resident',
+                                                                 'Golden Valley Resident'),
+                                                Convicted=c(349,19),
+                                                Interim.Disposition=c(10,1),
+                                                Dismissed=c(112,5),
+                                                No.Disposition=c(599,10))
+
+
+print(low_level_driving_offenses_by_residency)
+```
 
 
 
