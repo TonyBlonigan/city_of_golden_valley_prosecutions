@@ -20,6 +20,8 @@ library(tidyr)
 library(dplyr)
 library(ggplot2)
 library(stringr)
+source("project_utilities.R", local = knitr::knit_global())
+
 ```
 
 As a part of an equity review, the city of Golden Valley requested the law firm contracted 
@@ -56,7 +58,7 @@ Description from Chestnut Cambronne report:
 
 Chestnut Cambronne's full data set for low level driving offenses:
 
-```{r low_level_driving_offenses_setup, echo=FALSE}
+```{r low_level_driving_offenses_setup}
 # generate data set
 low_level_driving_offenses_by_race = data.frame(row.names=c('White', 'Black','Multiracial', 'Asian',
                                                          'Indian Alaskan Native', 'Some Other Race',
@@ -72,178 +74,21 @@ print(low_level_driving_offenses_by_race)
 
 
 #### Count of Prosecutions by Race
-```{r count_of_prosecutions_by_race, echo=FALSE}
+```{r count_of_prosecutions_by_race}
 rowSums(low_level_driving_offenses_by_race)
 ```
 
 
 #### Percent of Prosecutions by Race
-```{r percent_of_prosecutions_by_race, echo=FALSE}
+```{r percent_of_prosecutions_by_race}
 round(rowSums(low_level_driving_offenses_by_race) / sum(low_level_driving_offenses_by_race), 2) * 100
 ```
 
-### Relationship Between Race and Disposition
-
-To check whether disposition is dependent on race, we can use Fisher's exact test. This test will evaluate how probable it is, given our data set, that disposition is dependent on race. Fisher's exact test is used because it is appropriate for data sets with small counts lower than 5 some categories.
-
-One thing to note is that the Unavailable category is used when the defendant doesn't go to their trial, and the court is unable to record their race. It is fair to assume that this category probably has some distribution of races that is different from the general data set.
-
-#### Results
-
-Fisher's exact test returns a p-value of 2.2e-16, which is way smaller than 0.01. This is very strong evidence of a relationship between race and disposition.
-
-```{r low_level_driving_offenses_by_race_fisher_exact_test, echo=FALSE}
-# 
-n_columns <- dim(low_level_driving_offenses_by_race)[2]
-
-ft = fisher.test(low_level_driving_offenses_by_race, simulate.p.value = TRUE, B = 1e6)
-
-print(ft)
-```
-
-
-##### Analysis of Results
-
-One way to understand the results is by looking at the Pearson Residuals of a similar test, chi-square test. Basically, this is done by estimating the number of dispositions we would see in each race, given their population, if there were no racial disparities in disposition. Comparing these estimates to the actual counts highlights areas where the data show disparities. 
-
-The plot below displays a statistical transformation of these differences to better capture differences between the actual and expected counts. If a bar is lower than zero, it means that category had fewer than the expected amount of cases, if a bar is higher, then it had more.
-
-The salient features in this plot are:
-
-1. The black conviction rate is abnormally low
-2. The black no disposition rate is abnormally high
-    - Taken with the low conviction rate this suggests more probation for black people than other races
-3. The unavailable race group has a higher conviction rate than other groups
-    - This group represents people who don’t have a trial, so this isn’t surprising since you usually lose your case if you don’t show up. But losing a case could put someone in any category besides Dismissed.
-4. The Hispanic group has an unusually high rate of interim disposition
-5. The white race group has an unusually high dismissed rate
-
-```{r, echo=FALSE, warning=FALSE, fig.height=6.25}
-chisq = chisq.test(low_level_driving_offenses_by_race)
-
-p = data.frame(chisq$residuals)
-
-p$race = row.names(p)
-
-p = pivot_longer(data=p, cols = colnames(low_level_driving_offenses_by_race))
-
-# p %>% rename(c('Proportion of '='value'))
-
-p <- mutate(p, race = str_wrap(race, width = 6))
-
-ggplot(p, aes(name, value, fill=race)) + 
-  theme_bw() +
-  geom_bar(stat='identity') + 
-  facet_grid(rows=vars(race)) + 
-  coord_flip() +
-  guides(fill = "none") +
-  labs(x = element_blank(), y = 'Pearson Residuals')
-
-```
-
-<!-- Running a chi-square test is a convenient way to get these estimates. Not surprisingly, the chi-square test also shows a very low p-value. Although the chi-square test is not meant to be used for data sets with counts lower than 5, like this one. -->
-
-
-``` {r, include=FALSE}
-# 
-# p = data.frame(chisq$residuals)
-# 
-# for (c in colnames(p)) {
-#   direction_column = paste(c, 'Direction', sep='.')
-#   
-#   p[, direction_column] = p[,c] > 0
-#   
-#   p[, direction_column] = ifelse(p[, direction_column], 'Above Expected Rate', 'Below Expected Rate')
-# }
-# 
-# p$race = row.names(p)
-# 
-# p = pivot_longer(data=p, cols = colnames(low_level_driving_offenses_by_race))
-# 
-# # p %>% rename(c('Proportion of '='value'))
-# 
-# ggplot(p, aes(name, value, fill=race)) +
-#   geom_bar(stat='identity') +
-#   facet_grid(rows=vars(race)) +
-#   coord_flip() +
-#   guides(fill = "none")
-# 
-# p
-
-```
-
-It is also possible to plot the contribution each count made towards the evidence that disposition is not independent of race. The plot below shows the contribution as a percent of the overall evidence. Not surprisingly, this plot shows most of the contribution coming from the categories enumerated above.
-
-```{r fig.height=6.25}
-chisq = chisq.test(low_level_driving_offenses_by_race)
-
-contrib <- chisq$residuals^2/chisq$statistic
-
-p = data.frame(contrib)
-
-# p = data.frame(chisq$residuals)
-
-p$race = row.names(p)
-
-p = pivot_longer(data=p, cols = colnames(low_level_driving_offenses_by_race))
-
-# p %>% rename(c('Proportion of '='value'))
-
-p <- mutate(p, race = str_wrap(race, width = 6))
-
-ggplot(p, aes(name, value, fill=race)) + 
-  geom_bar(stat='identity') + 
-  theme_bw() +
-  facet_grid(rows=vars(race)) + 
-  coord_flip() +
-  guides(fill = "none")+
-  labs(x = element_blank(), y = 'Contribution to Evidence that Disposition is Not Independent of Race')
-
-```
-
-``` {r include=FALSE}
-ggplot(p, aes(name, value, fill=race,
-              group = race, color = race)) +
-  theme_bw() +
-  geom_line()
-```
-
-
-```{r low_level_driving_offenses_by_race_chi_square, echo=FALSE, include=FALSE}
-chisq = chisq.test(low_level_driving_offenses_by_race)
-
-chisq
-```
-
-```{r include=FALSE}
-print('Observed Values')
-
-round(chisq$observed,2)
-
-print('Chi-Square Expected Values (assuming race independent prosecution)')
-round(chisq$expected,2)
-
-print('pearson residuals (difference between observed and expected values)')
-# Residuals
-corrplot(chisq$residuals, is.cor = FALSE)
-
-round(chisq$residuals, 2)
-
-# Contribution in percentage (%)
-print('Contribution to Chi-Square Statistic')
-contrib <- 100*chisq$residuals^2/chisq$statistic
-corrplot(contrib, is.cor = FALSE)
-round(contrib, 3)
-
-```
-
-
-
 ### Relationship Between Race and Prosecution
 
-Comparing the racial composition of the low level driving offenses to the [American Communities Survey](https://stats.metc.state.mn.us/profile/detail.aspx?c=02394924) demographic data (ACS) for the Golden Valley, it is immediately apparent that the black population is prosecuted at a higher rate than the white population. The racial/ethnic groups represented in the CC prosecution data set are so different from the city's population that statistical analysis is hardly required to detect the relationship between race/ethnicity and prosecution for low-level driving offences. That said, below is a statistical analysis supporting this conclusion.
+Comparing the racial composition of the low level driving offenses to the [American Communities Survey](https://stats.metc.state.mn.us/profile/detail.aspx?c=02394924) demographic data (ACS) for the Golden Valley, it is immediately apparent that the black population is represented at a much higher rate than you would expect, based on Golden Valley's demographics. 
 
-There are several limitations to the available data, such as:
+Unfortunately, there are several limitations to the available data preventing us from doing a proper statistical analysis, such as:
 
 1. Racial and Ethnic categories are inconsistent between ACS and CC data sets
     - For example the ACS data set explicitly isolates Latino/a/x (even from multiracial), where the CC categories are more ambiguous. For example a Latino person from Brazil might consider themselves 'Hispanic or Latinx' given the ACS categories, but 'Black', 'Multiracial', or 'Some Other Race' given the CC options, since they have no Latino/a/x options.
@@ -253,12 +98,12 @@ There are several limitations to the available data, such as:
 5. As indicated in the report, many of the people prosecuted are from cities other than Golden Valley. This point will be addressed separately, below.
 6. It is also worth noting that the prosecutions data occurs during the COVID pandemic when driving patterns were likely different than the non COVID period.
 
-While keeping these limitations in mind, it is still possible to use statistical tools to help us quantify our certainty that prosecution for low level driving offences is associated with race/ethnicity.
+While keeping these limitations in mind, it is still possible to use statistical tools to help us understand how prosecution for low level driving offences appear to be related to race/ethnicity.
 
 #### Conversion from ACS Race/Ethnicities to CC Race/Ethnicities
 To compare the racial/ethnic makeup of the city to the racial/ethnic makeup of the population being prosecuted by CC, we must map the ACS races to the CC races. Imprecision in language used to describe race and ethnicity makes this is an imperfect process, but here is the mapping I used:
 
-```{r acs_race_ethnicity_mapping, echo=FALSE}
+```{r acs_race_ethnicity_mapping}
 
 # generate data set
 acs.race.and.ethnicity = data.frame(
@@ -328,36 +173,85 @@ colnames(acs_and_lld) = c('CC.Prosecutions', 'ACS.Population')
 
 #### Data Set
 This is the data being analysed to see whether prosecution, which in this case translates to being pulled over and charged with a low-level driving offence, is associated with race/ethnicity.
-```{r acs_cc_comparison_table, echo=FALSE}
+```{r acs_cc_comparison_table}
 acs_and_lld
 ```
 
-For the reasons listed above, we will ignore the 'Unavailable' category.
+One way to think about this is to compare the proportions of people in each race in both data sets. If prosecutions for low level driving offences were independent of race we would expect the demographics of the prosecuted population to be similar between the prosecuted people and the rest of the Golden Valley population.
+
+The Unknown category must be dropped because it doesn't exist in the ACS data set. But if that category were not related to race, then this not to affect the distribution of races in the CC.Prosecutions data.
+
+The plot below puts proportion of Golden Valley population on the x axis and proportion of prosecution population on the y axis. If there were no relationship between race and prosecution, you would expect the points would align closely to the dotted line. Many of the dots do align closely, however the plot shows black people make up a much higher proportion of the prosecution population than their proportion of the Golden Valley population. It also shows that the white people make up a much lower proportion of the population than they do of the Golden Valley population.
+
+```{r prosecution_v_gv_demographics}
+acs_and_lld_prop = acs_and_lld[complete.cases(acs_and_lld),]
+
+
+acs_and_lld_prop$CC.Prosecutions = acs_and_lld_prop$CC.Prosecutions / sum(acs_and_lld_prop$CC.Prosecutions, na.rm = TRUE)
+
+acs_and_lld_prop$ACS.Population = acs_and_lld_prop$ACS.Population / sum(acs_and_lld_prop$ACS.Population, na.rm = TRUE)
+
+acs_and_lld_prop = round(acs_and_lld_prop, 2)
+
+acs_and_lld_prop$race = row.names(acs_and_lld_prop)
+
+ggplot(acs_and_lld_prop, aes(ACS.Population, CC.Prosecutions, color = race)) +
+  geom_abline(slope=1, intercept=0, linetype=2) +
+  geom_point() +
+  theme_bw() +
+  xlim(0, 1) +
+  ylim(0, 1) +
+  annotate(geom = "text", x = .25, y = .8, label = "over-represented in prosecutions") +
+  annotate(geom = "text", x = .75, y = .2, label = "under-represented in prosecutions")
+# +
+  # labs(x = element_blank(), y = 'Pearson Residuals')
+```
+
+
 
 #### Chi-Square Test of Independence
 
-The chi-square test of independence can be used to asses whether prosecution is associated with race/ethnicity. This test compares the actual counts of prosecutions by race to what we would expect them to be if people of all races/ethnicities were prosecuted at the same rate. The more different those two sets of counts are, the more likely prosecution is associated with race/ethnicity.
+In the absence of the data integrity issues enumerated, above, the chi-squared test of independence could be used to asses whether prosecution is associated with race/ethnicity. While we can't use this as a statistical test to determine whehter there is a relationship between race and prosecution for low level driving offences, we can still use this test to hilight some concerning areas in the data. 
 
-This test returns a p-value, which can roughly be interpreted as the probability of seeing Golden Valley's prosecutions counts if prosecution were independent of race/ethnicity.
+Much like the chart above, the chi-squared test compares the actual counts of prosecutions by race to what we would expect them to be if people of all races/ethnicities were prosecuted at the same rate. The more different those two sets of counts are, the more likely prosecution is associated with race/ethnicity.
 
-The test results below return an extremely low p-value, indicating that there is strong statistical evidence of an association between race and prosecution for low level driving offences.
+Because of the data issues listed above, the p-value, which can roughly be interpreted as the probability of seeing Golden Valley's prosecutions counts if prosecution were independent of race/ethnicity, should not be interpreted as evidence of an association between race and prosecution for low level driving offences.
 
-```{r low_level_driving_offenses_prosecution_chi_square, echo=FALSE, warning=FALSE}
+```{r low_level_driving_offenses_prosecution_chi_square}
 chisq = chisq.test(acs_and_lld[complete.cases(acs_and_lld),])
 
 chisq
 ```
 
 #### Pearson Residual Plot
-Below, is a plot that illustrates the difference between the racial/ethnic distribution of prosecutions and the racial/ethnic distribution of Golden Valley, quantified as Pearson Residuals. The size of the dot corresponds to the size of the difference between the prosecution and Golden Valley populations. The color of the dots indicate the direction of the difference (blue means over represented, red means under represented).
+Below, is a plot that illustrates the difference between the racial/ethnic distribution of prosecutions and the racial/ethnic distribution of Golden Valley, quantified as Pearson Residuals. The lenght of the bars correspond to the size of the difference between the prosecution and Golden Valley populations.
 
-The largest point is in the 'Black', 'CC.Prosecutions' cell. The dark blue color indicates that black people are prosecuted at a much higher rate than would be expected if prosecutions were independent of race. 'Hispanic', and 'Some Other Race' show a similar, but less pronounced, pattern of abnormally high prosecution rates.
+The longest bar is in the 'Black', 'CC.Prosecutions' cell. The dark blue color indicates that black people are prosecuted at a much higher rate than would be expected if prosecutions were independent of race. 'Hispanic', and 'Some Other Race' show a similar, but less pronounced, pattern of abnormally high prosecution rates.
 
-The 'White', 'CC.Prosecutions' cell also has a large dot, indicating the expected count of prosecutions is much different than the actual value. But in this case the red color of the dot indicates that their value is lower than expected.
+The 'White', 'CC.Prosecutions' cell also has a long bar, indicating the expected count of prosecutions is much different than the actual value. But in this case the direction indicates that their value is lower than expected.
 
-The other notable dot is in the 'Black', 'ACS.Population' cell. Since the racial/ethnic distributions in both the CC and ACS data set are considered when calculating the counts of prosecutions we would expect to see if prosecution was independent of race/ethnicity, it is also possible for there to be a large difference between the expected population of the ACS.Population. In this case, given the huge over-representation of Black people in the prosecution data set, the ACS population of Black people is much lower than what we would expect it to be.
+The other notable bar is in the 'Black', 'ACS.Population' cell. Since the racial/ethnic distributions in both the CC and ACS data set are considered when calculating the counts of prosecutions we would expect to see if prosecution was independent of race/ethnicity, it is also possible for there to be a large difference between the expected population of the ACS.Population. In this case, given the huge over-representation of Black people in the prosecution data set, the ACS population of Black people is much lower than what we would expect it to be.
 
-```{r low_level_driving_offenses_residual_plot, echo=FALSE}
+```{r fig.height=6.25}
+
+plot_chi_squared_pearson_residuals(acs_and_lld[complete.cases(acs_and_lld),])
+
+```
+
+It is also possible to plot the contribution each count made towards the evidence that prosecution is not independent of race. The plot below shows the contribution as a percent of the overall evidence. Not surprisingly, this plot shows most of the contribution coming from the categories discussed above. 
+
+```{r fig.height=6.25}
+
+plot_chi_squared_contribution_percent(acs_and_lld[complete.cases(acs_and_lld),],
+                                      'Contribution to Evidence that Disposition is Not Independent of Race')
+
+```
+
+
+
+
+
+```{r low_level_driving_offenses_residual_plot, include=FALSE}
 # print('Observed Values')
 #
 # round(chisq$observed,2)
@@ -366,9 +260,9 @@ The other notable dot is in the 'Black', 'ACS.Population' cell. Since the racial
 # round(chisq$expected,2)
 
 # Residuals
-p = chisq$residuals
-row.names(p) = row.names(acs_and_lld)[complete.cases(acs_and_lld)]
-corrplot(p, is.cor = FALSE)
+# p = chisq$residuals
+# row.names(p) = row.names(acs_and_lld)[complete.cases(acs_and_lld)]
+# corrplot(p, is.cor = FALSE)
 
 # round(p, 2)
 #
@@ -379,12 +273,134 @@ corrplot(p, is.cor = FALSE)
 # round(contrib, 3)
 
 ```
-```{r ggplot_residuals, echo=FALSE}
+```{r ggplot_residuals}
 
 # data.frame(chisq$residuals)
 
 # ggplot(chisq$residuals, aes)
 
 ```
+
+
+
+
+### Relationship Between Race and Disposition
+
+To check whether disposition is dependent on race, we can use Fisher's exact test. This test will evaluate how probable it is, given our data set, that disposition is dependent on race. Fisher's exact test is used because it is appropriate for data sets with small counts lower than 5 some categories.
+
+One thing to note is that the Unavailable category is used when the defendant doesn't go to their trial, and the court is unable to record their race. It is fair to assume that this category probably has some distribution of races that is different from the general data set.
+
+#### Results
+
+Fisher's exact test returns a p-value of 2.2e-16, which is way smaller than 0.01. This is very strong evidence of a relationship between race and disposition.
+
+```{r low_level_driving_offenses_by_race_fisher_exact_test}
+# 
+n_columns <- dim(low_level_driving_offenses_by_race)[2]
+
+ft = fisher.test(low_level_driving_offenses_by_race, simulate.p.value = TRUE, B = 1e6)
+
+print(ft)
+```
+
+
+##### Analysis of Results
+
+One way to understand the results is by looking at the Pearson Residuals of a similar test, chi-square test. Basically, this is done by estimating the number of dispositions we would see in each race, given their population, if there were no racial disparities in disposition. Comparing these estimates to the actual counts highlights areas where the data show disparities. 
+
+The plot below displays a statistical transformation of these differences to better capture differences between the actual and expected counts. If a bar is lower than zero, it means that category had fewer than the expected amount of cases, if a bar is higher, then it had more.
+
+The salient features in this plot are:
+
+1. The black conviction rate is abnormally low
+2. The black no disposition rate is abnormally high
+    - Taken with the low conviction rate this suggests more probation for black people than other races
+3. The unavailable race group has a higher conviction rate than other groups
+    - This group represents people who don’t have a trial, so this isn’t surprising since you usually lose your case if you don’t show up. But losing a case could put someone in any category besides Dismissed.
+4. The Hispanic group has an unusually high rate of interim disposition
+5. The white race group has an unusually high dismissed rate
+
+```{r, fig.height=6.25}
+
+plot_chi_squared_pearson_residuals(low_level_driving_offenses_by_race)
+
+```
+
+<!-- Running a chi-square test is a convenient way to get these estimates. Not surprisingly, the chi-square test also shows a very low p-value. Although the chi-square test is not meant to be used for data sets with counts lower than 5, like this one. -->
+
+
+``` {r, include=FALSE}
+# 
+# p = data.frame(chisq$residuals)
+# 
+# for (c in colnames(p)) {
+#   direction_column = paste(c, 'Direction', sep='.')
+#   
+#   p[, direction_column] = p[,c] > 0
+#   
+#   p[, direction_column] = ifelse(p[, direction_column], 'Above Expected Rate', 'Below Expected Rate')
+# }
+# 
+# p$race = row.names(p)
+# 
+# p = pivot_longer(data=p, cols = colnames(low_level_driving_offenses_by_race))
+# 
+# # p %>% rename(c('Proportion of '='value'))
+# 
+# ggplot(p, aes(name, value, fill=race)) +
+#   geom_bar(stat='identity') +
+#   facet_grid(rows=vars(race)) +
+#   coord_flip() +
+#   guides(fill = "none")
+# 
+# p
+
+```
+
+It is also possible to plot the contribution each count made towards the evidence that disposition is not independent of race. The plot below shows the contribution as a percent of the overall evidence. Not surprisingly, this plot shows most of the contribution coming from the categories enumerated above.
+
+```{r fig.height=6.25}
+
+plot_chi_squared_contribution_percent(low_level_driving_offenses_by_race,
+                                      'Contribution to Evidence that Disposition is Not Independent of Race')
+
+```
+
+``` {r include=FALSE}
+# ggplot(p, aes(name, value, fill=race,
+#               group = race, color = race)) +
+#   theme_bw() +
+#   geom_line()
+```
+
+
+```{r low_level_driving_offenses_by_race_chi_square, include=FALSE}
+chisq = chisq.test(low_level_driving_offenses_by_race)
+
+chisq
+```
+
+```{r include=FALSE}
+print('Observed Values')
+
+round(chisq$observed,2)
+
+print('Chi-Square Expected Values (assuming race independent prosecution)')
+round(chisq$expected,2)
+
+print('pearson residuals (difference between observed and expected values)')
+# Residuals
+corrplot(chisq$residuals, is.cor = FALSE)
+
+round(chisq$residuals, 2)
+
+# Contribution in percentage (%)
+print('Contribution to Chi-Square Statistic')
+contrib <- 100*chisq$residuals^2/chisq$statistic
+corrplot(contrib, is.cor = FALSE)
+round(contrib, 3)
+
+```
+
 
 
