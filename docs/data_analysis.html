@@ -264,7 +264,7 @@ pre code {
 </ul></li>
 <li>37% of the population in the CC data set is ‘Unavailable.’ The quote above, from the report on the Golden Valley website, indicates that these are people who did not have a court appearance. We have no reason to assume not having a court appearance is not associated with race, so we can’t just assume those people shared the same racial/ethnic distribution as the other defendants. Further, there is no similar category in the ACS data set, as the responses do not depend on a court case and there is no category for people who didn’t respond to the survey.</li>
 <li>The CC data set is not a random sample of the population, while the ACS data is a random sample</li>
-<li>Where the CC data set is taken ’between, January 2020 through and June 2021,` it is not clear whether this includes January and/or June, the ACS data is from 2015-2020 surveys. So there is some difference in the populations to be expected. Maybe someone in the city government would be able to advise whether it is a reasonable assumption that the racial/ethnic distribution of Golden Valley has not changed significantly over that period.</li>
+<li>Where the CC data set is taken ‘between, January 2020 through and June 2021,’ it is not clear whether this includes January and/or June, the ACS data is from 2015-2020 surveys. So there is some difference in the populations to be expected. Maybe someone in the city government would be able to advise whether it is a reasonable assumption that the racial/ethnic distribution of Golden Valley has not changed significantly over that period.</li>
 <li>As indicated in the report, many of the people prosecuted are from cities other than Golden Valley. This point will be addressed separately, below.</li>
 <li>It is also worth noting that the prosecutions data occurs during the COVID pandemic when driving patterns were likely different than the non COVID period.</li>
 </ol>
@@ -333,6 +333,26 @@ pre code {
 <h3>Relationship Between Race and Disposition</h3>
 <p>To check whether disposition is dependent on race, we can use Fisher’s exact test. This test will evaluate how probable it is, given our data set, that disposition is dependent on race. Fisher’s exact test is used because it is appropriate for data sets with small counts lower than 5 some categories.</p>
 <p>One thing to note is that the Unavailable category is used when the defendant doesn’t go to their trial, and the court is unable to record their race. It is fair to assume that this category probably has some distribution of races that is different from the general data set.</p>
+<p>This is the data set:</p>
+<pre><code>##                       Convicted Interim.Disposition Dismissed No.Disposition
+## White                        64                   1        29             73
+## Black                        73                   3        43            276
+## Multiracial                   2                   1         0             17
+## Asian                         3                   1         1              7
+## Indian Alaskan Native         2                   0         1              7
+## Some Other Race               3                   1         5              7
+## Hispanic                     25                   3         9             32
+## Unavailable                 196                   1        29            190</code></pre>
+<p>For reference, here it is again, converted to proportions of prosecutions by race. For example, the table shows that the white conviction rate is 38%, but the multiracial conviction rate is just 10%. If their were no relationship between race and disposition, we would expect the values in each column to be approximately the same.</p>
+<pre><code>##                       Convicted Interim.Disposition Dismissed No.Disposition
+## White                      0.38                0.01      0.17           0.44
+## Black                      0.18                0.01      0.11           0.70
+## Multiracial                0.10                0.05      0.00           0.85
+## Asian                      0.25                0.08      0.08           0.58
+## Indian Alaskan Native      0.20                0.00      0.10           0.70
+## Some Other Race            0.19                0.06      0.31           0.44
+## Hispanic                   0.36                0.04      0.13           0.46
+## Unavailable                0.47                0.00      0.07           0.46</code></pre>
 <div id="results" class="section level4">
 <h4>Results</h4>
 <p>Fisher’s exact test returns a p-value of 2.2e-16, which is way smaller than 0.01. This is very strong evidence of a relationship between race and disposition.</p>

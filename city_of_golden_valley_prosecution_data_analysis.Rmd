@@ -94,7 +94,7 @@ Unfortunately, there are several limitations to the available data preventing a 
     - For example the ACS data set explicitly isolates Latino/a/x (even from multiracial), where the CC categories are more ambiguous. For example a Latino person from Brazil might consider themselves 'Hispanic or Latinx' given the ACS categories, but 'Black', 'Multiracial', or 'Some Other Race' given the CC options, since they have no Latino/a/x options.
 2. 37% of the population in the CC data set is 'Unavailable.' The quote above, from the report on the Golden Valley website, indicates that these are people who did not have a court appearance. We have no reason to assume not having a court appearance is not associated with race, so we can't just assume those people shared the same racial/ethnic distribution as the other defendants. Further, there is no similar category in the ACS data set, as the responses do not depend on a court case and there is no category for people who didn't respond to the survey.
 3. The CC data set is not a random sample of the population, while the ACS data is a random sample
-4. Where the CC data set is taken 'between, January 2020 through and June 2021,` it is not clear whether this includes January and/or June, the ACS data is from 2015-2020 surveys. So there is some difference in the populations to be expected. Maybe someone in the city government would be able to advise whether it is a reasonable assumption that the racial/ethnic distribution of Golden Valley has not changed significantly over that period.
+4. Where the CC data set is taken 'between, January 2020 through and June 2021,' it is not clear whether this includes January and/or June, the ACS data is from 2015-2020 surveys. So there is some difference in the populations to be expected. Maybe someone in the city government would be able to advise whether it is a reasonable assumption that the racial/ethnic distribution of Golden Valley has not changed significantly over that period.
 5. As indicated in the report, many of the people prosecuted are from cities other than Golden Valley. This point will be addressed separately, below.
 6. It is also worth noting that the prosecutions data occurs during the COVID pandemic when driving patterns were likely different than the non COVID period.
 
@@ -304,6 +304,18 @@ print(low_level_driving_offenses_by_residency)
 To check whether disposition is dependent on race, we can use Fisher's exact test. This test will evaluate how probable it is, given our data set, that disposition is dependent on race. Fisher's exact test is used because it is appropriate for data sets with small counts lower than 5 some categories.
 
 One thing to note is that the Unavailable category is used when the defendant doesn't go to their trial, and the court is unable to record their race. It is fair to assume that this category probably has some distribution of races that is different from the general data set.
+
+This is the data set:
+
+``` {r race_disposition_data_print}
+print(low_level_driving_offenses_by_race)
+```
+
+For reference, here it is again, converted to proportions of prosecutions by race. For example, the table shows that the white conviction rate is 38%, but the multiracial conviction rate is just 10%. If their were no relationship between race and disposition, we would expect the values in each column to be approximately the same.
+
+``` {r race_disposition_data__proportions_print}
+print(round(low_level_driving_offenses_by_race / rowSums(low_level_driving_offenses_by_race), 2))
+```
 
 #### Results
 
